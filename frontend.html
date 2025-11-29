@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1200">
+  <title>KOMMUNIK8</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at 60% 40%, #232526 60%, #414345 100%);
+      font-family: 'Segoe UI', Arial, sans-serif;
+      min-height: 100vh;
+    }
+    .logo-center {
+      width: 240px;
+      margin: 40px auto 0 auto;
+      display: block;
+    }
+    .container {
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: flex-start;
+      height: 100vh;
+      padding: 40px 0;
+      gap: 20px;
+    }
+    .main-content {
+      background: #fff;
+      display: flex;
+      flex-direction: column;
+      width: 1100px;
+      height: 900px;
+      box-shadow: 0 0 24px rgba(0,0,0,0.12);
+      align-items: center;
+      justify-content: center;
+    }
+    .history-pane {
+      background: #fff;
+      width: 300px;
+      height: 860px;
+      box-shadow: 0 0 24px rgba(0,0,0,0.12);
+      padding: 20px;
+      overflow-y: auto;
+    }
+    .history-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #232526;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #f89c2c;
+    }
+    .history-item {
+      padding: 10px;
+      margin-bottom: 10px;
+      background: #f5f5f5;
+      border-radius: 4px;
+      font-size: 0.9rem;
+      color: #232526;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .history-item:hover {
+      background: #e5e5e5;
+    }
+    .history-item .icon {
+      width: 24px;
+      text-align: center;
+      color: #f89c2c;
+    }
+    .history-item .content {
+      flex-grow: 1;
+    }
+    .history-item .timestamp {
+      font-size: 0.8rem;
+      color: #666;
+      margin-bottom: 5px;
+    }
+    .webcam-box {
+      width: 100%;
+      height: 100%;
+      background: #222;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 0;
+      overflow: hidden;
+      box-shadow: none;
+      flex: 3 1 0;
+      position: relative;
+    }
+    .webcam-feed {
+      width: 80%;
+      height: 80%;
+      object-fit: contain;
+      display: block;
+      background: #222;
+      z-index: 1;
+      margin: auto;
+    }
+    .hidden { display: none !important; }
+    .loading-overlay {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(34,34,34,0.85);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 5;
+      color: #fff;
+      font-size: 1.5rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+      transition: opacity 0.2s;
+    }
+    .spinner {
+      border: 6px solid #f3f3f3;
+      border-top: 6px solid #f89c2c;
+      border-radius: 50%;
+      width: 48px;
+      height: 48px;
+      animation: spin 1s linear infinite;
+      margin-bottom: 18px;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .webcam-controls {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      padding: 20px 0 20px 0;
+      background: #fff;
+    }
+    .webcam-btn {
+      padding: 12px 32px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      background: #232526;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+    .webcam-btn:hover {
+      background: #f89c2c;
+      color: #232526;
+    }
+    @media (max-width: 1200px) {
+      .container { flex-direction: column; align-items: center; }
+      .main-content { margin-right: 0; margin-bottom: 40px; }
+      .history-pane { width: 98vw; height: 300px; margin-bottom: 40px; }
+    }
+    @media (max-width: 900px) {
+      .main-content { flex-direction: column; width: 98vw; height: auto; }
+      .webcam-box { height: 300px; }
+    }
+  </style>
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+  <script>
+    let webcamActive = false;
+    let actionHistory = [];
+    const socket = io();
+
+    socket.on('connect', () => {
+      console.log('Connected to server');
+    });
+
+    socket.on('disconnect', () => {
+      console.log('Disconnected from server');
+    });
+
+    socket.on('transcript', function(data) {
+      if (data.type === 'gesture' && data.text) {
+        const currentWordInput = document.getElementById('current-word-input');
+        if (currentWordInput) {
+          currentWordInput.value += data.text;
+        }
+      }
+    });
+
+    function getActionIcon(action) {
+      if (action.includes('Started webcam')) return 'fa-video';
+      if (action.includes('Stopped webcam')) return 'fa-video-slash';
+      if (action.includes('Added word')) return 'fa-plus';
+      if (action.includes('Cleared')) return 'fa-eraser';
+      if (action.includes('Spoke')) return 'fa-volume-up';
+      if (action.includes('failed')) return 'fa-exclamation-circle';
+      return 'fa-info-circle';
+    }
+
+    function replayAction(action) {
+      if (action.includes('Started webcam')) {
+        startWebcam();
+      } else if (action.includes('Stopped webcam')) {
+        stopWebcam();
+      } else if (action.includes('Added word')) {
+        const word = action.match(/"([^"]+)"/)[1];
+        const currentWordInput = document.getElementById('current-word-input');
+        const sentenceInput = document.getElementById('sentence-input');
+        currentWordInput.value = word;
+        sentenceInput.value += (sentenceInput.value === '' ? '' : ' ') + word;
+        currentWordInput.value = '';
+      } else if (action.includes('Cleared sentence')) {
+        document.getElementById('sentence-input').value = '';
+      } else if (action.includes('Spoke')) {
+        const text = action.match(/"([^"]+)"/)[1];
+        if ('speechSynthesis' in window) {
+          const utterance = new SpeechSynthesisUtterance(text);
+          window.speechSynthesis.speak(utterance);
+        }
+      }
+    }
+
+    function addToHistory(action) {
+      const timestamp = new Date().toLocaleTimeString();
+      const historyItem = {
+        action,
+        timestamp,
+        icon: getActionIcon(action)
+      };
+      actionHistory.unshift(historyItem);
+      updateHistoryDisplay();
+    }
+
+    function updateHistoryDisplay() {
+      const historyContainer = document.getElementById('history-container');
+      historyContainer.innerHTML = '';
+      
+      actionHistory.forEach(item => {
+        const historyElement = document.createElement('div');
+        historyElement.className = 'history-item';
+        historyElement.innerHTML = `
+          <div class="icon"><i class="fas ${item.icon}"></i></div>
+          <div class="content">
+            <div class="timestamp">${item.timestamp}</div>
+            <div class="action">${item.action}</div>
+          </div>
+        `;
+        historyElement.addEventListener('click', () => replayAction(item.action));
+        historyContainer.appendChild(historyElement);
+      });
+    }
+
+    function startWebcam() {
+      const feed = document.getElementById('webcam-feed');
+      const overlay = document.getElementById('loading-overlay');
+      overlay.style.display = 'flex';
+      feed.classList.remove('hidden');
+      feed.src = '/video_feed';
+      webcamActive = true;
+      addToHistory('Started webcam');
+      
+      // Start camera on backend
+      fetch('/start_camera')
+        .then(response => response.json())
+        .then(data => {
+          if (data.status === 'error') {
+            console.error('Failed to start camera:', data.message);
+            addToHistory('Failed to start camera: ' + data.message);
+          }
+        })
+        .catch(error => {
+          console.error('Error starting camera:', error);
+          addToHistory('Error starting camera: ' + error.message);
+        });
+    }
+
+    function stopWebcam() {
+      const feed = document.getElementById('webcam-feed');
+      const overlay = document.getElementById('loading-overlay');
+      
+      // Clear the feed first
+      feed.src = '';
+      feed.classList.add('hidden');
+      overlay.style.display = 'none';
+      webcamActive = false;
+      
+      // Add to history before making the API call
+      addToHistory('Webcam is OFF');
+      
+      // Stop camera on backend
+      fetch('/stop_camera')
+        .then(response => response.json())
+        .then(data => {
+          if (data.status === 'error') {
+            console.error('Failed to stop camera:', data.message);
+            addToHistory('Failed to stop camera: ' + data.message);
+          }
+        })
+        .catch(error => {
+          console.error('Error stopping camera:', error);
+          addToHistory('Error stopping camera: ' + error.message);
+        });
+    }
+
+    window.onload = function() {
+      stopWebcam();
+      document.getElementById('webcam-feed').onload = function() {
+        document.getElementById('loading-overlay').style.display = 'none';
+      };
+      document.getElementById('webcam-feed').onerror = function() {
+        document.getElementById('loading-overlay').style.display = 'none';
+      };
+
+      // Add functionality for buttons
+      const addWordButton = document.querySelector('.current-word-section button:nth-of-type(1)');
+      const clearWordButton = document.querySelector('.current-word-section button:nth-of-type(2)');
+      const sentenceInput = document.getElementById('sentence-input');
+      const currentWordInput = document.getElementById('current-word-input');
+      const clearSentenceButton = document.getElementById('clear-sentence-btn');
+      const speakButton = document.getElementById('speak-btn');
+
+      if (addWordButton && clearWordButton && sentenceInput && currentWordInput && clearSentenceButton && speakButton) {
+        addWordButton.addEventListener('click', function() {
+          const currentWord = currentWordInput.value.trim();
+          if (currentWord !== '') {
+            sentenceInput.value += (sentenceInput.value === '' ? '' : ' ') + currentWord;
+            addToHistory(`Added word: "${currentWord}"`);
+            currentWordInput.value = '';
+          }
+        });
+
+        clearWordButton.addEventListener('click', function() {
+          addToHistory('Cleared current word');
+          window.location.reload();
+        });
+
+        clearSentenceButton.addEventListener('click', function() {
+          sentenceInput.value = '';
+          addToHistory('Cleared sentence');
+        });
+
+        // Speak button functionality
+        speakButton.addEventListener('click', function() {
+          const textToSpeak = sentenceInput.value.trim();
+          if (textToSpeak !== '' && 'speechSynthesis' in window) {
+            const utterance = new SpeechSynthesisUtterance(textToSpeak);
+            window.speechSynthesis.speak(utterance);
+            addToHistory(`Spoke: "${textToSpeak}"`);
+          } else if (!('speechSynthesis' in window)) {
+            console.error('Web Speech API is not supported in this browser.');
+            addToHistory('Speech synthesis failed - not supported');
+          }
+        });
+      }
+    }
+  </script>
+</head>
+<body>
+  <img src="LOGO.png" alt="Logo" class="logo-center" />
+  <div class="container">
+    <div class="main-content">
+      <div class="webcam-box">
+        <img id="webcam-feed" src="" class="webcam-feed hidden" />
+        <div class="loading-overlay" id="loading-overlay" style="display:none;">
+          <div class="spinner"></div>
+          Please wait...
+        </div>
+      </div>
+      <div class="webcam-controls">
+        <button class="webcam-btn" onclick="startWebcam()">Start webcam</button>
+        <button class="webcam-btn" onclick="stopWebcam()">Stop webcam</button>
+        <button class="webcam-btn" id="speak-btn">Speak</button>
+      </div>
+
+      <!-- New sections for Sentence and Current Word -->
+      <div class="sentence-section" style="margin-top: 20px; width: 90%; max-width: 600px;">
+        <label for="sentence-input" style="display: block; font-size: 1.2rem; font-weight: 700; margin-bottom: 8px; color: #232526;">Sentence:</label>
+        <input type="text" id="sentence-input" placeholder="Sentence:" style="width: calc(100% - 80px); padding: 10px; font-size: 1.1rem; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; display: inline-block; vertical-align: middle;">
+        <button id="clear-sentence-btn" class="webcam-btn" style="padding: 14px 16px; font-size: 0.9rem; margin-left: 5px; vertical-align: middle;">Clear</button>
+      </div>
+
+      <div class="current-word-section" style="margin-top: 20px; width: 90%; max-width: 600px;">
+        <label for="current-word-input" style="display: block; font-size: 1.2rem; font-weight: 700; margin-bottom: 8px; color: #232526;">Current word:</label>
+        <div style="display: flex; gap: 10px;">
+          <input type="text" id="current-word-input" placeholder="Current word:" style="flex-grow: 1; padding: 10px; font-size: 1.1rem; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+          <button class="webcam-btn" style="padding: 8px 16px; font-size: 0.9rem;">Add Word</button>
+          <button class="webcam-btn" style="padding: 8px 16px; font-size: 0.9rem;">Clear History</button>
+        </div>
+      </div>
+
+    </div>
+    <div class="history-pane">
+      <div class="history-title">Action History</div>
+      <div id="history-container"></div>
+    </div>
+  </div>
+</body>
+</html> 
