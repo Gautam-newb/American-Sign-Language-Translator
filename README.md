@@ -2,11 +2,11 @@
 
 KOMMUNIK8 is a real-time American Sign Language (ASL) recognition system that uses computer vision and machine learning to translate hand gestures into text. The system provides a web-based interface for live gesture recognition, allowing users to communicate through sign language with real-time transcription.
 
-## 🎯 Project Overview
+## Project Overview
 
 KOMMUNIK8 leverages MediaPipe for hand tracking and TensorFlow Lite models for gesture classification. The system can recognize ASL letters (A-Z) and various hand gestures, providing a seamless communication interface for sign language users.
 
-## ✨ Features
+## Features
 
 - **Real-time Hand Gesture Recognition**: Uses MediaPipe to track hand landmarks in real-time
 - **ASL Letter Recognition**: Recognizes all 26 ASL letters (A-Z)
@@ -17,7 +17,7 @@ KOMMUNIK8 leverages MediaPipe for hand tracking and TensorFlow Lite models for g
 - **Action History**: Tracks and replays user actions
 - **Model Training Tools**: Scripts for training and improving gesture recognition models
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 ### Backend
 - **Python 3.8+**
@@ -38,7 +38,7 @@ KOMMUNIK8 leverages MediaPipe for hand tracking and TensorFlow Lite models for g
 - **TensorFlow Lite**: Optimized models for inference
 - **Scikit-learn**: Data preprocessing and model evaluation
 
-## 📁 Folder Structure
+## Folder Structure
 
 ```
 Project Ult/
@@ -77,7 +77,7 @@ Project Ult/
         └── Solid logo for KOMMUNIK8.jpg
 ```
 
-## 🚀 Setup & Installation
+## Setup & Installation
 
 ### Prerequisites
 
@@ -113,7 +113,7 @@ Project Ult/
    python -c "import cv2, mediapipe, tensorflow, flask; print('All dependencies installed!')"
    ```
 
-## 🎮 How to Run
+## How to Run
 
 ### Option 1: Using app.py (Recommended)
 
@@ -137,7 +137,7 @@ python server.py
 4. Perform ASL gestures in front of your camera
 5. Recognized letters will appear in the "Current word" field
 
-## 📡 API Endpoints
+## API Endpoints
 
 ### Web Routes
 
@@ -156,7 +156,7 @@ python server.py
   }
   ```
 
-## 💻 Usage Examples
+## Usage Examples
 
 ### Basic Usage
 
@@ -182,7 +182,7 @@ python server.py
 python merge_keypoint_data.py
 ```
 
-## 🔧 Configuration
+## Configuration
 
 ### Camera Settings
 
@@ -204,7 +204,7 @@ sign_filter = SignLanguageFilter(
 )
 ```
 
-## 🧪 Model Training
+## Model Training
 
 ### Training Data Format
 
@@ -220,7 +220,7 @@ Training data is stored in CSV format:
 4. **Training**: Uses early stopping and learning rate reduction
 5. **Export**: Converts to TensorFlow Lite for efficient inference
 
-## 🤝 Contribution Guidelines
+## Contribution Guidelines
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed contribution guidelines.
 
@@ -232,17 +232,17 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed contribution guidelines.
 4. Test thoroughly
 5. Submit a pull request
 
-## 📝 License
+## License
 
 [Specify your license here - MIT, Apache 2.0, etc. Please update this section with your preferred license]
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - MediaPipe team for hand tracking technology
 - TensorFlow team for machine learning framework
 - OpenCV community for computer vision tools
 
-## 📧 Contact
+## Contact
 
 [Add your contact information or project maintainer details]
 
