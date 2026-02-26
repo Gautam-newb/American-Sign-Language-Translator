@@ -232,10 +232,6 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed contribution guidelines.
 4. Test thoroughly
 5. Submit a pull request
 
-## License
-
-[Specify your license here - MIT, Apache 2.0, etc. Please update this section with your preferred license]
-
 ## Acknowledgments
 
 - MediaPipe team for hand tracking technology
@@ -243,10 +239,9 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed contribution guidelines.
 - OpenCV community for computer vision tools
 
 ## Contact
-
-[Add your contact information or project maintainer details]
-
-## 🔄 Changelog
+E-mail ID: 
+kngautam1729@gmail.com
+## Changelog
 
 See [CHANGELOG.md](CHANGELOG.md) for version history and updates.
 
